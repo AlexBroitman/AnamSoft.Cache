@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Runtime.Caching;
 
-namespace Cache
+namespace AnamSoft.Cache
 {
-    public class CacheItemPolicy : IEquatable<CacheItemPolicy?>
+    public class CacheItemPolicy : ICacheItemPolicy
     {
         public static CacheItemPolicy Default = new CacheItemPolicy(TimeSpan.FromMinutes(1));
 
@@ -38,6 +38,16 @@ namespace Cache
             SlidingExpiration = slidingExpiration;
         }
 
+        public void AddChangeMonitor(ChangeMonitor changeMonitor)
+        {
+            _changeMonitors.Add(changeMonitor);
+        }
+
+        public void RemoveChangeMonitor(ChangeMonitor changeMonitor)
+        {
+            _changeMonitors.Remove(changeMonitor);
+        }
+
         public event EventHandler<EventArgs>? Adding;
         public event EventHandler<EventArgs>? Added;
         public event EventHandler<EventArgs>? Updating;
@@ -52,19 +62,8 @@ namespace Cache
         protected virtual void OnRemoving(EventArgs ea) => Removing?.Invoke(this, ea);
         protected virtual void OnRemoved(EventArgs ea) => Removed?.Invoke(this, ea);
 
-        private List<ChangeMonitor> _changeMonitors;
+        private readonly List<ChangeMonitor> _changeMonitors;
 
-        #region Equality
-        public static bool operator ==(CacheItemPolicy? a, CacheItemPolicy? b)
-            => ReferenceEquals(a, b) || !(a is null) && !(b is null) && a.SlidingExpiration == b.SlidingExpiration && a.AbsoluteExpiration == b.AbsoluteExpiration;
-
-        public static bool operator !=(CacheItemPolicy? a, CacheItemPolicy? b) => !(a == b);
-
-        public bool Equals(CacheItemPolicy? other) => this == other;
-
-        public override bool Equals(object? obj) => obj is CacheItemPolicy other && this == other;
-
-        public override int GetHashCode() => HashCode.Combine(AbsoluteExpiration, SlidingExpiration);
-        #endregion
+        internal bool Cached;
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Runtime.Caching;
 
-namespace Cache
+namespace AnamSoft.Cache
 {
     public class ReadOnlyChangeMonitorCollection : ReadOnlyCollection<ChangeMonitor>
     {
